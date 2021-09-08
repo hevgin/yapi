@@ -18,6 +18,13 @@ import {
 } from 'antd';
 import constants from '../../constants/variable.js';
 import AceEditor from 'client/components/AceEditor/AceEditor';
+import { connect } from 'react-redux';
+import {
+  updateInterfaceData,
+  fetchInterfaceListMenu,
+  fetchInterfaceData
+} from '../../reducer/modules/interface.js';
+import { message } from 'antd';
 import _ from 'underscore';
 import { isJson, deepCopyJson, json5_parse } from '../../common.js';
 import axios from 'axios';
@@ -108,6 +115,20 @@ ParamsNameComponent.propTypes = {
   desc: PropTypes.string,
   name: PropTypes.string
 };
+
+
+@connect(
+  state => {
+    return {
+      currProject: state.project.currProject
+    };
+  },
+  {
+    updateInterfaceData,
+    fetchInterfaceListMenu,
+    fetchInterfaceData
+  }
+)
 export default class Run extends Component {
   static propTypes = {
     data: PropTypes.object, //接口原有数据
@@ -115,7 +136,12 @@ export default class Run extends Component {
     type: PropTypes.string, //enum[case, inter], 判断是在接口页面使用还是在测试集
     curUid: PropTypes.number.isRequired,
     interfaceId: PropTypes.number.isRequired,
-    projectId: PropTypes.number.isRequired
+    projectId: PropTypes.number.isRequired,
+
+    currProject: PropTypes.object,
+    updateInterfaceData: PropTypes.func,
+    fetchInterfaceListMenu: PropTypes.func,
+    fetchInterfaceData: PropTypes.func
   };
 
   constructor(props) {
@@ -145,6 +171,39 @@ export default class Run extends Component {
     return hd != null
       && typeof hd === 'object'
       && String(hd['Content-Type'] || hd['content-type']).indexOf('text/html') !== -1
+  }
+
+  onSubmit = async () => {
+    const {
+      req_query, req_headers, req_body_form, title, catid, path, tag,
+      status, req_body_type, req_body_is_json_schema, res_body_is_json_schema,
+      res_body_type, res_body, switch_notice, api_opened, desc, markdown,
+      req_body_other, method, req_params, _id
+    } = this.props.data
+
+    const headers = []
+    req_headers.forEach(item => {
+      headers.push({
+        name: item.name,
+        value: item.value
+      })
+    })
+
+    const params = {
+      req_query, req_headers: headers, req_body_form, title, catid, path, tag,
+      status, req_body_type, req_body_is_json_schema, res_body_is_json_schema,
+      res_body_type, res_body: this.state.test_res_body || res_body, switch_notice, api_opened, desc, markdown,
+      req_body_other: this.state.req_body_other || req_body_other, method, req_params, id: _id
+    }
+    let result = await axios.post('/api/interface/up', params);
+    this.props.fetchInterfaceListMenu(this.props.currProject._id).then();
+    this.props.fetchInterfaceData(params.id).then();
+    if (result.data.errcode === 0) {
+      this.props.updateInterfaceData(params);
+      message.success('保存成功');
+    } else {
+      message.error(result.data.errmsg);
+    }
   }
 
   checkInterfaceData(data) {
@@ -271,7 +330,7 @@ export default class Run extends Component {
     );
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this._crossRequestInterval = initCrossRequest(hasPlugin => {
       this.setState({
         hasPlugin: hasPlugin
@@ -284,7 +343,7 @@ export default class Run extends Component {
     clearInterval(this._crossRequestInterval);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (this.checkInterfaceData(nextProps.data) && this.checkInterfaceData(this.props.data)) {
       if (nextProps.data._id !== this.props.data._id) {
         this.initState(nextProps.data);
@@ -424,7 +483,6 @@ export default class Run extends Component {
   };
 
   changeParam = (name, v, index, key) => {
-    
     key = key || 'value';
     const pathParam = deepCopyJson(this.state[name]);
 
@@ -933,8 +991,13 @@ export default class Run extends Component {
               >
                 {this.state.resStatusCode + '  ' + this.state.resStatusText}
               </h2>
-              <div>
+              <div style={{padding: '10px 20px 0 10px', display: 'flex', justifyContent: 'space-between'}}>
                 <a rel="noopener noreferrer"  target="_blank" href="https://juejin.im/post/5c888a3e5188257dee0322af">YApi 新版如何查看 http 请求数据</a>
+                <Button
+                  type="primary"
+                  onClick={() => this.onSubmit()}
+                  style={{ marginLeft: 10 }}
+                >保存运行结果</Button>
               </div>
               {this.state.test_valid_msg && (
                 <Alert

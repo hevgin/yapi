@@ -103,11 +103,11 @@ export default class InterfaceColMenu extends Component {
     super(props);
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.getList();
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (this.props.interfaceColList !== nextProps.interfaceColList) {
       this.setState({
         list: nextProps.interfaceColList
@@ -436,7 +436,7 @@ export default class InterfaceColMenu extends Component {
       } else {
         return {
           expands: this.state.expands ? this.state.expands : ['col_' + interfaceColList[0]._id],
-          selects: ['col_' + interfaceColList[0]._id]
+          selects: ['root']
         };
       }
     };

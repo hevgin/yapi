@@ -176,6 +176,9 @@ class Profile extends Component {
     let old_password = document.getElementById('old_password').value;
     let password = document.getElementById('password').value;
     let verify_pass = document.getElementById('verify_pass').value;
+    if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,16}$/.test(password)) {
+      return message.error('密码必须包含大小写字母和数字组合，长度在6-16之间');
+    }
     if (password != verify_pass) {
       return message.error('两次输入的密码不一样');
     }

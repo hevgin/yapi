@@ -115,6 +115,10 @@ class Reg extends Component {
                 message: '请输入密码!'
               },
               {
+                message: '密码必须包含大小写字母和数字组合，长度在6-16之间',
+                pattern: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,16}$/
+              },
+              {
                 validator: this.checkConfirm
               }
             ]

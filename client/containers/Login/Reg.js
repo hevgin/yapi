@@ -116,7 +116,7 @@ class Reg extends Component {
               },
               {
                 message: '密码必须包含大小写字母、数字、特殊字符组合，长度至少8位',
-                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$/
+                pattern: /^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,}$/
               },
               {
                 validator: this.checkConfirm

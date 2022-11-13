@@ -483,7 +483,7 @@ class InterfaceColContent extends Component {
   async UNSAFE_componentWillReceiveProps(nextProps) {
     let newColId = !isNaN(nextProps.match.params.actionId) ? +nextProps.match.params.actionId : 0;
 
-    if ((newColId && this.currColId && newColId !== this.currColId) || nextProps.isRander) {
+    if (newColId && ((this.currColId && newColId !== this.currColId) || nextProps.isRander)) {
       this.currColId = newColId;
       this.handleColIdChange(newColId)
     }

@@ -27,11 +27,6 @@ module.exports = {
         "react/no-find-dom-node": ["off"],
         "no-empty": ["off"]
         // "react/no-unescaped-entities": 0
-    },
-    settings:{
-        "react": {
-            "version": "detect"
-        }
     }
 };
 
